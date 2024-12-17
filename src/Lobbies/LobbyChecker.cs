@@ -26,6 +26,7 @@ public class LobbyChecker
 
     private static readonly HttpClient Client = new();
     private static Dictionary<int, ModdedLobby> _moddedLobbies = new();
+    public static int _currentLobby = int.MaxValue;
 
     private static readonly Regex SpecialCharacterRegex = new("[^A-Za-z-]*");
 
@@ -40,6 +41,7 @@ public class LobbyChecker
     internal static IEnumerator PostLobbyToEndpoints(int gameId, string host, int playerCount) 
     {
         List<UnityWebRequest> requests = new();
+        if (_currentLobby != gameId) _currentLobby = gameId;
         LobbyServers.ForEach(curInfo => {
             if (curInfo.CreateEndpoint() == "") return;
             UnityWebRequest PostLobby = UnityWebRequest.Post(curInfo.CreateEndpoint(), "");
@@ -72,6 +74,7 @@ public class LobbyChecker
     {
         LobbyServers.ForEach(curInfo => {
             if (curInfo.UpdatePlayerStatusEndpoint() == "") return;
+            if (_currentLobby == int.MaxValue) return;
             HttpRequestMessage requestMessage = new();
             requestMessage.RequestUri = new Uri(curInfo.UpdatePlayerStatusEndpoint());
             requestMessage.Method = HttpMethod.Post;
@@ -87,6 +90,7 @@ public class LobbyChecker
     {
         LobbyServers.ForEach(curInfo => {
             if (curInfo.UpdateMapEndpoint() == "") return;
+            if (_currentLobby == int.MaxValue) return;
             HttpRequestMessage requestMessage = new();
             requestMessage.RequestUri = new Uri(curInfo.UpdateMapEndpoint());
             requestMessage.Method = HttpMethod.Post;
